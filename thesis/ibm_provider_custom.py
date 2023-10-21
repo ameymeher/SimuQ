@@ -10,8 +10,7 @@ class IBMProvider(BaseProvider):
             with open(from_file, "r") as f:
                 api_key = f.readline().strip()
         self.api_key = api_key
-        self.provider = IBMQ.enable_account(api_key, hub=hub, group=group, project=project,overwrite=True)
-        print("System initiated.")
+        self.provider = IBMQ.enable_account(api_key, hub=hub, group=group, project=project)
         super().__init__()
 
     def supported_backends(self):
@@ -36,7 +35,7 @@ class IBMProvider(BaseProvider):
 
         if aais == "heisenberg":
             from simuq.aais import ibm
-            from simuq.ibm.qiskit_pulse_ibm import transpile
+            from simuq.backends.qiskit_pulse_ibm import transpile
 
             mach = ibm.generate_qmachine(self.backend)
             comp = transpile
@@ -72,20 +71,20 @@ class IBMProvider(BaseProvider):
         if on_simulator:
             if with_noise:
                 from qiskit_aer.noise import NoiseModel
+                from qiskit.providers.fake_provider import FakePerth
 
                 self.simulator = self.provider.get_backend("ibmq_qasm_simulator")
+                # currently a bug in ibm's backend
+                #from qiskit.providers.fake_provider import FakeGuadalupe
 
-                try:
-                    noise_model = NoiseModel.from_backend(self.backend).to_dict()
-                except:
-                    raise Exception("This backend's noise model is not available.")
+                noise_model = NoiseModel.from_backend(FakePerth()).to_dict()
 
                 self.simulator.options.update_options(noise_model=noise_model)
             else:
                 self.simulator = self.provider.get_backend("ibmq_qasm_simulator")
-            job = execute(self.prog, shots=shots, backend=self.simulator)
+            job = execute(self.prog, shots=shots, backend=self.simulator,optimization_level=3)
         else:
-            job = execute(self.prog, shots=shots, backend=self.backend)
+            job = execute(self.prog, shots=shots, backend=self.backend,optimization_level=3)
         self.task = job
         if verbose >= 0:
             print(self.task)
