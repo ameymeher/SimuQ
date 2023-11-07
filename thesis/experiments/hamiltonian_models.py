@@ -1,9 +1,9 @@
 from simuq.qsystem import QSystem
-from simuq.environment import qubit
+from simuq.environment import Qubit
 
 def Ising(N, T, J, h):
     qs = QSystem()
-    q = [qubit(qs) for _ in range(N)]
+    q = [Qubit(qs) for _ in range(N)]
     H = 0
     for j in range(N):
         for k in range(N):

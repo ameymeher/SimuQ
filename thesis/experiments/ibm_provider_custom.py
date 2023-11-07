@@ -1,17 +1,28 @@
 from qiskit import IBMQ
-
+import yaml
+import logging.config
+import logging
 from simuq.provider import BaseProvider
 from simuq.solver import generate_as
 
+#Setup logger
+with open('logging.yaml',encoding="utf8") as ly:
+    loggingDict = yaml.safe_load(ly)
+logging.config.dictConfig(loggingDict)
+logger = logging.getLogger("ibm_provider_custom")
 
 class IBMProvider(BaseProvider):
     def __init__(self, api_key=None, hub="ibm-q", group="open", project="main", from_file=None):
-        if from_file is not None:
-            with open(from_file, "r") as f:
-                api_key = f.readline().strip()
-        self.api_key = api_key
-        self.provider = IBMQ.enable_account(api_key, hub=hub, group=group, project=project)
-        super().__init__()
+        try:
+            if from_file is not None:
+                with open(from_file, "r") as f:
+                    api_key = f.readline().strip()
+            self.api_key = api_key
+            self.provider = IBMQ.enable_account(api_key, hub=hub, group=group, project=project)
+        except:
+            print("Credentials already in place.")
+        finally:
+            super().__init__()
 
     def supported_backends(self):
         print(self.provider.backends())
@@ -26,6 +37,8 @@ class IBMProvider(BaseProvider):
         verbose=0,
         use_pulse=True,
         state_prep=None,
+        optimization_level=None,
+        approximation_degree=1
     ):
         self.backend = self.provider.get_backend(backend)
         nsite = self.backend.configuration().n_qubits
@@ -35,7 +48,7 @@ class IBMProvider(BaseProvider):
 
         if aais == "heisenberg":
             from simuq.aais import ibm
-            from simuq.backends.qiskit_pulse_ibm import transpile
+            from simuq.ibm.qiskit_pulse_ibm import transpile
 
             mach = ibm.generate_qmachine(self.backend)
             comp = transpile
@@ -49,6 +62,9 @@ class IBMProvider(BaseProvider):
             override_layout=None,
             verbose=verbose,
         )
+        
+        logger.info("Running with use_pulse={}".format(use_pulse))
+        
         self.prog = comp(
             self.backend,
             layout,
@@ -59,7 +75,8 @@ class IBMProvider(BaseProvider):
         )
         from qiskit import transpile as transpile_qiskit
 
-        self.prog = transpile_qiskit(self.prog, backend=self.backend)
+        logger.info("Running with optimization level: {}".format(optimization_level))
+        self.prog = transpile_qiskit(self.prog, backend=self.backend,optimization_level=optimization_level)
         self.layout = layout
         self.qs_names = qs.print_sites()
         if state_prep is not None:
@@ -82,9 +99,10 @@ class IBMProvider(BaseProvider):
                 self.simulator.options.update_options(noise_model=noise_model)
             else:
                 self.simulator = self.provider.get_backend("ibmq_qasm_simulator")
-            job = execute(self.prog, shots=shots, backend=self.simulator,optimization_level=3)
+            job = execute(self.prog, shots=shots, backend=self.simulator)
         else:
-            job = execute(self.prog, shots=shots, backend=self.backend,optimization_level=3)
+            logger.info("Running the experiment on backend: {}".format(self.backend))
+            job = execute(self.prog, shots=shots, backend=self.backend)
         self.task = job
         if verbose >= 0:
             print(self.task)
