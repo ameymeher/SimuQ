@@ -34,7 +34,7 @@ def get_n_link(backend):
     return n, link
 
 
-def clean_as(boxes, edges, backend, with_measure=True):
+def clean_as(boxes, edges, backend, with_measure=True,noise_factor=0):
     n, link = get_n_link(backend)
     circ = QuantumCircuit(n)
     DG = nx.DiGraph()
@@ -48,6 +48,13 @@ def clean_as(boxes, edges, backend, with_measure=True):
             if line < n:
                 if ins == 0:
                     q = line
+                    for _ in range(noise_factor):
+                        circ.rz(-params[1], q)
+                        circ.rx(2 * params[0] * t, q)
+                        circ.rz(params[1], q)
+                        circ.rz(-params[1], q)
+                        circ.rx(2 * params[0] * t, q)
+                        circ.rz(params[1], q)
                     circ.rz(-params[1], q)
                     circ.rx(2 * params[0] * t, q)
                     circ.rz(params[1], q)
