@@ -4,6 +4,7 @@ import logging.config
 import logging
 from simuq.provider import BaseProvider
 from simuq.solver import generate_as
+from qiskit_ibm_provider import IBMProvider as IBMProvider_qiskit
 
 #Setup logger
 with open('logging.yaml',encoding="utf8") as ly:
