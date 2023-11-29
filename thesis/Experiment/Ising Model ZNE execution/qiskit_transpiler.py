@@ -97,9 +97,11 @@ class RXCalibrationBuilder(CalibrationBuilder):
     def __init__(
         self,
         instruction_schedule_map,
+        qubit_channel_mapping,
     ):
         super().__init__()
         self._inst_map = instruction_schedule_map
+        self._channel_map = qubit_channel_mapping
 
     def supported(self, node_op, qubits):
         return isinstance(node_op, RXGate)
@@ -136,15 +138,20 @@ class RXXCalibrationBuilder(TransformationPass):
     def __init__(
         self,
         instruction_schedule_map,
+        qubit_channel_mapping,
     ):
         super().__init__()
         self._inst_map = instruction_schedule_map
+        self._channel_map = qubit_channel_mapping
 
     def supported(self, node_op) -> bool:
         return isinstance(node_op, RXXGate)
 
     def get_control_qubit(self, q1, q2):  # Control performs Z
-        cx_sched = self._inst_map.get("cx", qubits=(q1, q2))
+        try:
+            cx_sched = self._inst_map.get("cx", qubits=(q1, q2))
+        except:
+            cx_sched = self._inst_map.get("ecr", qubits=(q1, q2))
 
         for time, inst in cx_sched.instructions:
             if isinstance(inst.channel, DriveChannel) and not isinstance(inst, ShiftPhase):
@@ -186,15 +193,20 @@ class RZZCalibrationBuilder(TransformationPass):
     def __init__(
         self,
         instruction_schedule_map,
+        qubit_channel_mapping,
     ):
         super().__init__()
         self._inst_map = instruction_schedule_map
+        self._channel_map = qubit_channel_mapping
 
     def supported(self, node_op) -> bool:
         return isinstance(node_op, RZZGate)
 
     def get_control_qubit(self, q1, q2):  # Control performs Z
-        cx_sched = self._inst_map.get("cx", qubits=(q1, q2))
+        try:
+            cx_sched = self._inst_map.get("cx", qubits=(q1, q2))
+        except:
+            cx_sched = self._inst_map.get("ecr", qubits=(q1, q2))
 
         for time, inst in cx_sched.instructions:
             if isinstance(inst.channel, DriveChannel) and not isinstance(inst, ShiftPhase):
@@ -236,15 +248,20 @@ class RYYCalibrationBuilder(TransformationPass):
     def __init__(
         self,
         instruction_schedule_map,
+        qubit_channel_mapping,
     ):
         super().__init__()
         self._inst_map = instruction_schedule_map
+        self._channel_map = qubit_channel_mapping
 
     def supported(self, node_op) -> bool:
         return isinstance(node_op, RYYGate)
 
     def get_control_qubit(self, q1, q2):  # Control performs Z
-        cx_sched = self._inst_map.get("cx", qubits=(q1, q2))
+        try:
+            cx_sched = self._inst_map.get("cx", qubits=(q1, q2))
+        except:
+            cx_sched = self._inst_map.get("ecr", qubits=(q1, q2))
 
         for time, inst in cx_sched.instructions:
             if isinstance(inst.channel, DriveChannel) and not isinstance(inst, ShiftPhase):
@@ -292,9 +309,11 @@ class RYXCalibrationBuilder(TransformationPass):
     def __init__(
         self,
         instruction_schedule_map,
+        qubit_channel_mapping,
     ):
         super().__init__()
         self._inst_map = instruction_schedule_map
+        self._channel_map = qubit_channel_mapping
 
     def supported(self, node_op) -> bool:
         return isinstance(node_op, RYXGate)
@@ -323,9 +342,11 @@ class eYZXCalibrationBuilder(TransformationPass):
     def __init__(
         self,
         instruction_schedule_map,
+        qubit_channel_mapping,
     ):
         super().__init__()
         self._inst_map = instruction_schedule_map
+        self._channel_map = qubit_channel_mapping
 
     def supported(self, node_op) -> bool:
         return isinstance(node_op, eYZXGate)
@@ -363,33 +384,41 @@ def get_pm(backend, for_braiding=False):
     configuration = backend.configuration()
     defaults = backend.defaults()
     instruction_schedule_map = defaults.instruction_schedule_map
+    qubit_channel_map = configuration._qubit_channel_map
 
     xx_calibrater = RXXCalibrationBuilder(
         instruction_schedule_map=instruction_schedule_map,
+        qubit_channel_mapping=qubit_channel_map,
     )
 
     zz_calibrater = RZZCalibrationBuilder(
         instruction_schedule_map=instruction_schedule_map,
+        qubit_channel_mapping=qubit_channel_map,
     )
 
     yy_calibrater = RYYCalibrationBuilder(
         instruction_schedule_map=instruction_schedule_map,
+        qubit_channel_mapping=qubit_channel_map,
     )
 
     zx_calibrater = RZXCalibrationBuilder(
         instruction_schedule_map=instruction_schedule_map,
+        verbose=True
     )
 
     x_calibrater = RXCalibrationBuilder(
         instruction_schedule_map=instruction_schedule_map,
+        qubit_channel_mapping=qubit_channel_map,
     )
 
     yzx_calibrater = eYZXCalibrationBuilder(
         instruction_schedule_map=instruction_schedule_map,
+        qubit_channel_mapping=qubit_channel_map,
     )
 
     yx_calibrater = RYXCalibrationBuilder(
         instruction_schedule_map=instruction_schedule_map,
+        qubit_channel_mapping=qubit_channel_map,
     )
 
     if for_braiding:
