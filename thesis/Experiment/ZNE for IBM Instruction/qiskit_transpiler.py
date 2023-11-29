@@ -105,33 +105,28 @@ class RXCalibrationBuilder(CalibrationBuilder):
 
     def supported(self, node_op, qubits):
         return isinstance(node_op, RXGate)
-
     @staticmethod
     def rescale_gaussian_inst(instruction, theta):
         pulse_ = instruction.pulse
         amp_scale = (1 + theta / np.pi) % 2 - 1
-        return Play(
-            Drag(
+        return Drag(
                 amp=pulse_.amp * amp_scale * 2,
                 sigma=pulse_.sigma,
                 duration=pulse_.duration,
                 beta=pulse_.beta,
-            ),
-            channel=instruction.channel,
-        )
-
+            )
     def get_calibration(self, node_op, qubits):
         theta = node_op.params[0]
         qubit = qubits[0]
         x_sched = self._inst_map.get("sx", qubits=(qubit))
-        rx_theta = Schedule(name="rx(%.3f)" % theta)
-        rx_theta.metadata["publisher"] = CalibrationPublisher.QISKIT
-
-        if theta == 0.0:
-            return rx_theta
         inst = x_sched.instructions[0][1]
         x1 = self.rescale_gaussian_inst(inst, theta)
-        return rx_theta.append(x1)
+        with builder.build(name = "rx(%.3f)", schedule=x_sched) as rx_sched:
+            if theta == 0.0:
+                return rx_sched
+            builder.play(x1, channel=inst.channel)
+            print(rx_sched)
+        return rx_sched
 
 
 class RXXCalibrationBuilder(TransformationPass):
