@@ -1,0 +1,5 @@
+qiskit
+qiskit_experiments
+qiskit_ibm_provider
+matplotlib
+pylatexenc
