@@ -17,7 +17,10 @@ def get_n_link(backend):
         try:
             cx_sched = instruction_schedule_map.get("cx", qubits=(q1, q2))
         except:
-            cx_sched = instruction_schedule_map.get("ecr", qubits=(q1, q2))
+            try:
+                cx_sched = instruction_schedule_map.get("ecr", qubits=(q1, q2))
+            except:
+                cx_sched = instruction_schedule_map.get("cz", qubits=(q1, q2))
         supported = False
         for time, inst in cx_sched.instructions:
             if isinstance(inst.channel, DriveChannel) and not isinstance(inst, ShiftPhase):
@@ -93,7 +96,7 @@ def clean_as(boxes, edges, backend, with_measure=True,noise_factor=0):
                         circ.rzz(-theta, q0, q1)
                     circ.rzz(theta, q0, q1)
     if with_measure:
-        circ.measure_active()
+        circ.measure_all()
     return circ
 
 
