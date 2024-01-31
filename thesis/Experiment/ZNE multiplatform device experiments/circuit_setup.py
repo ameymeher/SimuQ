@@ -13,6 +13,12 @@ with open('logging.yaml', encoding="utf8") as ly:
 logging.config.dictConfig(loggingDict)
 logger = logging.getLogger("circuit_setup")
 
+#Setting the IBM provider
+api_file = "../ibm_API_key"
+with open(api_file, "r") as f:
+        api_key = f.readline().strip()
+provider = IBMProvider(api_key, instance='ibm-q-ncsu/nc-state/quantum-compiler')
+
 #Ising chain model creation
 def generate_base_circuit(N,T,system):
     h = np.array([1 for j in range(N)])
@@ -52,12 +58,6 @@ def compile(
         use_fake_backend=False,
         with_measure=True
     ):
-
-    #Setting the IBM provider
-    api_file = "../ibm_API_key"
-    with open(api_file, "r") as f:
-            api_key = f.readline().strip()
-    provider = IBMProvider(api_key, instance='ibm-q-ncsu/nc-state/quantum-compiler')
 
     #SimuQ code
     if not use_fake_backend:
@@ -115,9 +115,13 @@ def generate_circuits(N,T,system):
     circuit = compile(Ising_chain,backend=system)
 
     #Pickling the circuit
-    with open("circuit.pickle", 'wb') as handle:
+    filename = "circuits/" + system + "_" + str(N) + "_" + str(T) + ".pickle"
+    with open(filename, 'wb') as handle:
         pickle.dump(circuit, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     return "ABC"
 
-print(generate_circuits(4,1,"ibmq_mumbai"))
+for N in range(4,10):
+    for T in range(1,4):
+        for system in ["ibmq_mumbai","ibm_brisbane","ibm_kyoto"]:
+            print(generate_circuits(N,T,system))
