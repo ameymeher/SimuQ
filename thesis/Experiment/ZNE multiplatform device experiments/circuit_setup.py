@@ -122,6 +122,6 @@ def generate_circuits(N,T,system):
     return "ABC"
 
 for N in range(4,10):
-    for T in range(1,4):
+    for T in range(1,7):
         for system in ["ibmq_mumbai","ibm_brisbane","ibm_kyoto"]:
             print(generate_circuits(N,T,system))
