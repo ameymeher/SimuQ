@@ -114,14 +114,15 @@ def generate_circuits(N,T,system):
     Ising_chain = generate_base_circuit(N,T,system)
     circuit = compile(Ising_chain,backend=system)
 
+    return circuit
+"""
     #Pickling the circuit
     filename = "circuits/" + system + "_" + str(N) + "_" + str(T) + ".pickle"
     with open(filename, 'wb') as handle:
         pickle.dump(circuit, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     return "ABC"
+"""
 
-for N in range(4,10):
-    for T in range(1,7):
-        for system in ["ibmq_mumbai","ibm_brisbane","ibm_kyoto"]:
-            print(generate_circuits(N,T,system))
+circuit = generate_circuits(4,1,"ibm_sheerbrooke")
+print(list(circuit.calibrations['rzx'].keys()))
