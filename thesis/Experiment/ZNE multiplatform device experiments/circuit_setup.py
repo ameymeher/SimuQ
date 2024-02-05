@@ -123,10 +123,9 @@ def generate_circuits(N,T,system):
     with open(filename, 'wb') as handle:
         pickle.dump(circuit, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-    return "ABC"
-
+    return circuit
 
 for N in range(4,11):
     for T in range(1,4):
         for system in ['ibmq_mumbai','ibm_brisbane']:
-            generate_circuits(4,1,system)
+            generate_circuits(N,T,system)
