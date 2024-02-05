@@ -1,0 +1,6 @@
+For N=4 and T=1 parameters:
+Sherbrooke: (3,2),(1,0),(1,2)
+Nazca: (3,2),(0,1),(1,2)
+Mumbai: (3,2),(0,1),(2,1)
+Kyoto: (3,2),(1,0),(1,2)
+Brisbane: (3,2),(1,0),(2,1)
