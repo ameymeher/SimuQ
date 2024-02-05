@@ -87,26 +87,30 @@ def compile(
         verbose=verbose,
     )
 
-    prog = comp(
-        backend,
-        layout,
-        sol_gvars,
-        boxes,
-        edges,
-        use_pulse=use_pulse,
-        with_measure=with_measure,
-        noise_factor=0
-    )
+    prog = []
 
     from qiskit import transpile as transpile_qiskit
 
-    prog = transpile_qiskit(prog, backend=backend)
-    layout = layout
-    qs_names = qs.print_sites()
+    for noise_factor in range(0,5):
 
-    if state_prep is not None:
-        prog = prog.compose(state_prep, qubits=layout, front=True)
+        prog_circ = comp(
+            backend,
+            layout,
+            sol_gvars,
+            boxes,
+            edges,
+            use_pulse=use_pulse,
+            with_measure=with_measure,
+            noise_factor=noise_factor
+        )
 
+        prog_circ = transpile_qiskit(prog_circ, backend=backend)
+
+        if state_prep is not None:
+            prog_circ = prog_circ.compose(state_prep, qubits=layout, front=True)
+
+        prog.append(prog_circ)
+    
     return prog
 
 def generate_circuits(N,T,system):
@@ -114,15 +118,15 @@ def generate_circuits(N,T,system):
     Ising_chain = generate_base_circuit(N,T,system)
     circuit = compile(Ising_chain,backend=system)
 
-    return circuit
-"""
     #Pickling the circuit
     filename = "circuits/" + system + "_" + str(N) + "_" + str(T) + ".pickle"
     with open(filename, 'wb') as handle:
         pickle.dump(circuit, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     return "ABC"
-"""
 
-circuit = generate_circuits(4,1,"ibm_sheerbrooke")
-print(list(circuit.calibrations['rzx'].keys()))
+
+for N in range(4,11):
+    for T in range(1,4):
+        for system in ['ibmq_mumbai','ibm_brisbane']:
+            generate_circuits(4,1,system)
