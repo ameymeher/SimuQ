@@ -9,14 +9,10 @@ logging.config.dictConfig(loggingDict)
 logger = logging.getLogger("reliability_utility_ibm")
 
 
-
-
 def get_interleaved_fidelity(qc,parameters):
 
     calibrations = qc.calibrations
     print(type(calibrations['rx']))
-
-
 
 
 def get_gate_fidelities(qc,parameters):
