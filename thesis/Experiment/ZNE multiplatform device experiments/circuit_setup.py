@@ -119,7 +119,7 @@ def generate_circuits(N,T,system):
     circuit = compile(Ising_chain,backend=system)
 
     #Pickling the circuit
-    filename = "circuits/" + system + "_" + str(N) + "_" + str(T) + ".pickle"
+    filename = "circuits/" + system + "_" + str(N) + "_" + str(T) + ".pkl"
     with open(filename, 'wb') as handle:
         pickle.dump(circuit, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
