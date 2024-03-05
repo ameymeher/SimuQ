@@ -127,5 +127,5 @@ def generate_circuits(N,T,system):
 
 for N in range(4,11):
     for T in range(1,4):
-        for system in ['ibmq_mumbai','ibm_brisbane']:
+        for system in ['ibmq_mumbai','ibm_brisbane','ibm_sherbrooke','ibm_nazca','ibm_kyoto']:
             generate_circuits(N,T,system)

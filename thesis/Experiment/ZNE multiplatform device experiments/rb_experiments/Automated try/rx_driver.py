@@ -16,7 +16,7 @@ provider = IBMProvider(api_key, instance='ibm-q-ncsu/nc-state/quantum-compiler')
 
 #Setting the parameters for experiments
 params = []
-for system in ['ibm_brisbane','ibmq_mumbai']:
+for system in ['ibm_sherbrooke', 'ibm_nazca','ibm_kyoto']:
     with open("../../circuits/{}_10_1.pickle".format(system), "rb") as f:
         circuit = pickle.load(f)
     

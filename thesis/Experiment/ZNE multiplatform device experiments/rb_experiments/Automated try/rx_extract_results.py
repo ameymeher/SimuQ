@@ -16,7 +16,7 @@ with open(api_file, "r") as f:
 provider = IBMProvider(api_key, instance='ibm-q-ncsu/nc-state/quantum-compiler')
 
 #Unpickle the latest file from the folder params based on timestamp
-list_of_files = glob.glob('params/*')
+list_of_files = glob.glob('params/updated_rx_params_2024-02-14*')
 
 latest_file = max(list_of_files, key=os.path.getctime)
 with open(latest_file, "rb") as f:
@@ -54,9 +54,14 @@ def extract_results(param):
     
     #Extracting the results
     param['error'] = int_expdata.analysis_results("EPC").value
+    print("System: ", param['system'])
     print("Error for qubit: ", qubit, " is: ", param['error'].nominal_value)
+    print("Std Error for qubit: ", qubit, " is: ", param['error'].std_dev)
     return param
 
 
-params = list(filter(lambda x: 1 if x['system'] == 'ibmq_mumbai' else 0,params))
 results = list(map(extract_results,params))
+
+#Save the results
+with open('params/updated_rx_params_nazca_sherbrooke_and_kyoto.pkl', "wb") as f:
+    pickle.dump(results, f)
