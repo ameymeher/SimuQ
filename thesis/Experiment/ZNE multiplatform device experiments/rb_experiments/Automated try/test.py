@@ -1,1 +1,0 @@
-print("HELLO{}".format([1,2]))

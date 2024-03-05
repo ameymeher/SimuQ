@@ -111,21 +111,21 @@ def compile(
 
         prog.append(prog_circ)
     
-    return prog
+    return prog, layout
 
 def generate_circuits(N,T,system):
 
     Ising_chain = generate_base_circuit(N,T,system)
-    circuit = compile(Ising_chain,backend=system)
+    circuit, layout = compile(Ising_chain,backend=system)
 
     #Pickling the circuit
     filename = "circuits/" + system + "_" + str(N) + "_" + str(T) + ".pkl"
     with open(filename, 'wb') as handle:
-        pickle.dump(circuit, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump({"circuit" : circuit, "layout" : layout}, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     return circuit
 
 for N in range(4,11):
     for T in range(1,4):
-        for system in ['ibmq_mumbai','ibm_brisbane']:
+        for system in ['ibmq_mumbai','ibm_brisbane','ibm_kyoto','ibm_sherbrooke','ibm_nazca']:
             generate_circuits(N,T,system)

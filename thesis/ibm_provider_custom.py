@@ -1,8 +1,6 @@
-from qiskit import IBMQ
-
+from qiskit_ibm_provider import IBMProvider as IBMProviderQiskit
 from simuq.provider import BaseProvider
 from simuq.solver import generate_as
-
 
 class IBMProvider(BaseProvider):
     def __init__(self, api_key=None, hub="ibm-q", group="open", project="main", from_file=None):
@@ -10,7 +8,7 @@ class IBMProvider(BaseProvider):
             with open(from_file, "r") as f:
                 api_key = f.readline().strip()
         self.api_key = api_key
-        self.provider = IBMQ.enable_account(api_key, hub=hub, group=group, project=project)
+        self.provider = IBMProviderQiskit(api_key, instance='{}/{}/{}'.format(hub, group, project))
         super().__init__()
 
     def supported_backends(self):
